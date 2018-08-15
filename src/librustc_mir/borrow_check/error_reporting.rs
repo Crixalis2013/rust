@@ -29,6 +29,7 @@ use dataflow::{FlowAtLocation, MovingOutStatements};
 use util::borrowck_errors::{BorrowckErrors, Origin};
 
 impl<'cx, 'gcx, 'tcx> MirBorrowckCtxt<'cx, 'gcx, 'tcx> {
+    #[allow(unused)]
     pub(super) fn report_use_of_moved_or_uninitialized(
         &mut self,
         context: Context,
@@ -869,6 +870,7 @@ impl<'cx, 'gcx, 'tcx> MirBorrowckCtxt<'cx, 'gcx, 'tcx> {
     }
 
     // Retrieve type of a place for the current MIR representation
+    #[allow(unused)]
     fn retrieve_type_for_place(&self, place: &Place<'tcx>) -> Option<ty::Ty> {
         match place {
             Place::Local(local) => {

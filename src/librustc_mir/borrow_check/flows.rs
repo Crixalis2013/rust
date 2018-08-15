@@ -24,7 +24,7 @@ use polonius_engine::Output;
 use dataflow::move_paths::indexes::BorrowIndex;
 use dataflow::move_paths::HasMoveData;
 use dataflow::Borrows;
-use dataflow::{EverInitializedPlaces, MovingOutStatements};
+use dataflow::{EverInitializedPlaces}; //, MovingOutStatements};
 use dataflow::{FlowAtLocation, FlowsAtLocation};
 use dataflow::MaybeUninitializedPlaces;
 use either::Either;
@@ -35,7 +35,7 @@ use std::rc::Rc;
 crate struct Flows<'b, 'gcx: 'tcx, 'tcx: 'b> {
     borrows: FlowAtLocation<Borrows<'b, 'gcx, 'tcx>>,
     pub uninits: FlowAtLocation<MaybeUninitializedPlaces<'b, 'gcx, 'tcx>>,
-    pub move_outs: FlowAtLocation<MovingOutStatements<'b, 'gcx, 'tcx>>,
+    //pub move_outs: FlowAtLocation<MovingOutStatements<'b, 'gcx, 'tcx>>,
     pub ever_inits: FlowAtLocation<EverInitializedPlaces<'b, 'gcx, 'tcx>>,
 
     /// Polonius Output
@@ -46,14 +46,14 @@ impl<'b, 'gcx, 'tcx> Flows<'b, 'gcx, 'tcx> {
     crate fn new(
         borrows: FlowAtLocation<Borrows<'b, 'gcx, 'tcx>>,
         uninits: FlowAtLocation<MaybeUninitializedPlaces<'b, 'gcx, 'tcx>>,
-        move_outs: FlowAtLocation<MovingOutStatements<'b, 'gcx, 'tcx>>,
+        //move_outs: FlowAtLocation<MovingOutStatements<'b, 'gcx, 'tcx>>,
         ever_inits: FlowAtLocation<EverInitializedPlaces<'b, 'gcx, 'tcx>>,
         polonius_output: Option<Rc<Output<RegionVid, BorrowIndex, LocationIndex>>>,
     ) -> Self {
         Flows {
             borrows,
             uninits,
-            move_outs,
+            //move_outs,
             ever_inits,
             polonius_output,
         }
@@ -79,7 +79,7 @@ macro_rules! each_flow {
     ($this:ident, $meth:ident($arg:ident)) => {
         FlowAtLocation::$meth(&mut $this.borrows, $arg);
         FlowAtLocation::$meth(&mut $this.uninits, $arg);
-        FlowAtLocation::$meth(&mut $this.move_outs, $arg);
+        //FlowAtLocation::$meth(&mut $this.move_outs, $arg);
         FlowAtLocation::$meth(&mut $this.ever_inits, $arg);
     };
 }
@@ -142,6 +142,7 @@ impl<'b, 'gcx, 'tcx> fmt::Display for Flows<'b, 'gcx, 'tcx> {
         });
         s.push_str("] ");
 
+        /*
         s.push_str("move_out: [");
         let mut saw_one = false;
         self.move_outs.each_state_bit(|mpi_move_out| {
@@ -153,6 +154,7 @@ impl<'b, 'gcx, 'tcx> fmt::Display for Flows<'b, 'gcx, 'tcx> {
             s.push_str(&format!("{:?}", move_out));
         });
         s.push_str("] ");
+        */
 
         s.push_str("ever_init: [");
         let mut saw_one = false;

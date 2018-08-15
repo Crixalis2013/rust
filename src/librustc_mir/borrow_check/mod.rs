@@ -42,7 +42,7 @@ use dataflow::DataflowResultsConsumer;
 use dataflow::FlowAtLocation;
 use dataflow::MoveDataParamEnv;
 use dataflow::{do_dataflow, DebugFormatted};
-use dataflow::{EverInitializedPlaces, MovingOutStatements};
+use dataflow::{EverInitializedPlaces}; //, MovingOutStatements};
 use dataflow::{MaybeInitializedPlaces, MaybeUninitializedPlaces};
 use util::borrowck_errors::{BorrowckErrors, Origin};
 
@@ -185,7 +185,7 @@ fn do_mir_borrowck<'a, 'gcx, 'tcx>(
         MaybeUninitializedPlaces::new(tcx, mir, &mdpe),
         |bd, i| DebugFormatted::new(&bd.move_data().move_paths[i]),
     ));
-    let flow_move_outs = FlowAtLocation::new(do_dataflow(
+    /*let flow_move_outs = FlowAtLocation::new(do_dataflow(
         tcx,
         mir,
         id,
@@ -193,7 +193,7 @@ fn do_mir_borrowck<'a, 'gcx, 'tcx>(
         &dead_unwinds,
         MovingOutStatements::new(tcx, mir, &mdpe),
         |bd, i| DebugFormatted::new(&bd.move_data().moves[i]),
-    ));
+    ));*/
     let flow_ever_inits = FlowAtLocation::new(do_dataflow(
         tcx,
         mir,
@@ -267,7 +267,7 @@ fn do_mir_borrowck<'a, 'gcx, 'tcx>(
     let mut state = Flows::new(
         flow_borrows,
         flow_uninits,
-        flow_move_outs,
+        //flow_move_outs,
         flow_ever_inits,
         polonius_output,
     );
@@ -407,6 +407,7 @@ pub struct MirBorrowckCtxt<'cx, 'gcx: 'tcx, 'tcx: 'cx> {
     reservation_error_reported: FxHashSet<Place<'tcx>>,
     /// This field keeps track of errors reported in the checking of moved variables,
     /// so that we don't report seemingly duplicate errors.
+    #[allow(unused)]
     moved_error_reported: FxHashSet<Place<'tcx>>,
     /// Errors to be reported buffer
     errors_buffer: Vec<Diagnostic>,
@@ -805,6 +806,7 @@ struct AccessErrorsReported {
 }
 
 #[derive(Copy, Clone)]
+#[allow(unused)]
 enum InitializationRequiringAction {
     Update,
     Borrow,
@@ -818,6 +820,7 @@ struct RootPlace<'d, 'tcx: 'd> {
 }
 
 impl InitializationRequiringAction {
+    #[allow(unused)]
     fn as_noun(self) -> &'static str {
         match self {
             InitializationRequiringAction::Update => "update",
@@ -827,6 +830,7 @@ impl InitializationRequiringAction {
         }
     }
 
+    #[allow(unused)]
     fn as_verb_in_past_tense(self) -> &'static str {
         match self {
             InitializationRequiringAction::Update => "updated",
@@ -1616,8 +1620,8 @@ impl<'cx, 'gcx, 'tcx> MirBorrowckCtxt<'cx, 'gcx, 'tcx> {
 
     fn check_if_full_path_is_moved(
         &mut self,
-        context: Context,
-        desired_action: InitializationRequiringAction,
+        _context: Context,
+        _desired_action: InitializationRequiringAction,
         place_span: (&Place<'tcx>, Span),
         flow_state: &Flows<'cx, 'gcx, 'tcx>,
     ) {
@@ -1626,7 +1630,7 @@ impl<'cx, 'gcx, 'tcx> MirBorrowckCtxt<'cx, 'gcx, 'tcx> {
         let place = self.base_path(place_span.0);
 
         let maybe_uninits = &flow_state.uninits;
-        let curr_move_outs = &flow_state.move_outs;
+        //let curr_move_outs = &flow_state.move_outs;
 
         // Bad scenarios:
         //
@@ -1667,13 +1671,13 @@ impl<'cx, 'gcx, 'tcx> MirBorrowckCtxt<'cx, 'gcx, 'tcx> {
         match self.move_path_closest_to(place) {
             Ok(mpi) => {
                 if maybe_uninits.contains(&mpi) {
-                    self.report_use_of_moved_or_uninitialized(
+                    /*self.report_use_of_moved_or_uninitialized(
                         context,
                         desired_action,
                         place_span,
                         mpi,
                         curr_move_outs,
-                    );
+                    );*/
                     return; // don't bother finding other problems.
                 }
             }
@@ -1700,7 +1704,7 @@ impl<'cx, 'gcx, 'tcx> MirBorrowckCtxt<'cx, 'gcx, 'tcx> {
         let place = self.base_path(place_span.0);
 
         let maybe_uninits = &flow_state.uninits;
-        let curr_move_outs = &flow_state.move_outs;
+        //let curr_move_outs = &flow_state.move_outs;
 
         // Bad scenarios:
         //
@@ -1730,7 +1734,8 @@ impl<'cx, 'gcx, 'tcx> MirBorrowckCtxt<'cx, 'gcx, 'tcx> {
 
         debug!("check_if_path_or_subpath_is_moved place: {:?}", place);
         if let Some(mpi) = self.move_path_for_place(place) {
-            if let Some(child_mpi) = maybe_uninits.has_any_child_of(mpi) {
+            if let Some(_child_mpi) = maybe_uninits.has_any_child_of(mpi) {
+                /*
                 self.report_use_of_moved_or_uninitialized(
                     context,
                     desired_action,
@@ -1738,6 +1743,7 @@ impl<'cx, 'gcx, 'tcx> MirBorrowckCtxt<'cx, 'gcx, 'tcx> {
                     child_mpi,
                     curr_move_outs,
                 );
+                */
                 return; // don't bother finding other problems.
             }
         }
